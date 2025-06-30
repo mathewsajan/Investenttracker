@@ -11,14 +11,25 @@
 4. **Click "Create new project"**
 5. **Wait 1-2 minutes** for project initialization
 
-## Step 2: Get Your New Credentials
+## Step 2: Configure Authentication Settings
+
+**CRITICAL: This step prevents the "Email not confirmed" error**
+
+1. **Go to Authentication > Settings** in your Supabase dashboard
+2. **Find "Enable email confirmations"** toggle
+3. **Turn OFF email confirmations** for development
+4. **Click "Save"**
+
+This allows users to sign in immediately without email verification during development.
+
+## Step 3: Get Your New Credentials
 
 1. **Once project is ready, go to Settings > API**
 2. **Copy these values:**
    - Project URL (e.g., `https://abcdefgh.supabase.co`)
    - Anon/Public key (starts with `eyJ...`)
 
-## Step 3: Update Environment Variables
+## Step 4: Update Environment Variables
 
 Update your `.env` file with the new credentials:
 
@@ -27,7 +38,7 @@ VITE_SUPABASE_URL=https://your-new-project-url.supabase.co
 VITE_SUPABASE_ANON_KEY=your-new-anon-key-here
 ```
 
-## Step 4: Run Database Migrations
+## Step 5: Run Database Migrations
 
 **Go to SQL Editor** in your Supabase dashboard and run these migrations in order:
 
@@ -55,7 +66,7 @@ This adds:
 - ✅ Example couple relationships
 - ✅ Sample financial goals
 
-## Step 5: Test Your Application
+## Step 6: Test Your Application
 
 1. **Restart your development server:**
    ```bash
@@ -63,17 +74,18 @@ This adds:
    ```
 
 2. **Test core functionality:**
-   - ✅ Sign up for a new account
+   - ✅ Sign up for a new account (should work without email confirmation)
+   - ✅ Sign in immediately after registration
    - ✅ Add investment accounts (RRSP, TFSA, etc.)
    - ✅ Record transactions
    - ✅ Add spouse/partner (this should now work!)
    - ✅ Switch between user views in the header
    - ✅ Update CRA contribution limits
 
-## Step 6: Verify Everything Works
+## Step 7: Verify Everything Works
 
 Check these features:
-- [ ] User registration and login
+- [ ] User registration and login (no email confirmation required)
 - [ ] Account creation and management
 - [ ] Transaction recording and history
 - [ ] Spouse/partner addition and management
@@ -89,16 +101,30 @@ Check these features:
 ✅ **No Legacy Problems**: Fresh foundation without accumulated issues
 ✅ **Production Ready**: Proper setup for future deployment
 ✅ **All Features Working**: Spouse creation, user switching, etc.
+✅ **No Email Confirmation Issues**: Streamlined development experience
 
 ## Troubleshooting
 
 If you encounter any issues:
 
-1. **Check Environment Variables**: Ensure `.env` has the correct new values
-2. **Clear Browser Cache**: Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
-3. **Check Browser Console**: Look for any JavaScript errors
-4. **Verify Migrations**: Ensure all migrations ran successfully in SQL Editor
-5. **Check Network Tab**: Look for 403 or 500 errors in browser dev tools
+1. **"Email not confirmed" error**: 
+   - Go to Authentication > Settings in Supabase dashboard
+   - Ensure "Enable email confirmations" is turned OFF
+   - Clear browser cache and try again
+
+2. **Check Environment Variables**: Ensure `.env` has the correct new values
+3. **Clear Browser Cache**: Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
+4. **Check Browser Console**: Look for any JavaScript errors
+5. **Verify Migrations**: Ensure all migrations ran successfully in SQL Editor
+6. **Check Network Tab**: Look for 403 or 500 errors in browser dev tools
+
+## Production Considerations
+
+For production deployment:
+1. **Re-enable Email Confirmations**: Turn ON email confirmations in Authentication > Settings
+2. **Configure Email Templates**: Customize the confirmation email templates
+3. **Set Up Custom SMTP**: Configure your own email service for better deliverability
+4. **Test Email Flow**: Ensure users can receive and click confirmation emails
 
 ## Next Steps
 
