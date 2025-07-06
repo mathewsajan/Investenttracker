@@ -1,5 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
+import { 
+  userRowToUser, 
+  userToUserRow, 
+  accountRowToAccount, 
+  accountToAccountRow,
+  transactionRowToTransaction,
+  transactionToTransactionRow,
+  UserRow,
+  AccountRow,
+  TransactionRow
+} from '../types/accounts';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -61,16 +72,27 @@ export const db = {
       .select('*')
       .eq('id', id)
       .maybeSingle();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: userRowToUser(data as UserRow), error: null };
   },
 
   createUser: async (userData: any) => {
+    const userRow = userToUserRow(userData);
     const { data, error } = await supabase
       .from('users')
-      .insert(userData)
+      .insert(userRow)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: userRowToUser(data as UserRow), error: null };
   },
 
   createUserForSpouse: async (userData: any) => {
@@ -80,12 +102,12 @@ export const db = {
       // Ensure we have the correct structure for spouse creation
       const spouseData = {
         name: userData.name,
-        email: userData.email || 'spouse@example.com', // Fallback email
-        date_of_birth: userData.date_of_birth || '1990-01-01',
+        email: userData.email || `spouse.${Date.now()}@example.com`, // Unique fallback email
+        dateOfBirth: userData.dateOfBirth || '1990-01-01',
         province: userData.province || 'Ontario',
-        relationship_status: userData.relationship_status || 'married',
-        is_primary: false, // Critical: this must be false for spouse
-        contribution_limits: userData.contribution_limits || {
+        relationshipStatus: userData.relationshipStatus || 'married',
+        isPrimary: false, // Critical: this must be false for spouse
+        contributionLimits: userData.contributionLimits || {
           rrsp: {
             taxYearContributionRoom: 31560,
             totalFirstContributionPeriod: 0,
@@ -105,9 +127,10 @@ export const db = {
 
       console.log('Formatted spouse data:', spouseData);
 
+      const userRow = userToUserRow(spouseData);
       const { data, error } = await supabase
         .from('users')
-        .insert(spouseData)
+        .insert(userRow)
         .select()
         .single();
 
@@ -117,7 +140,7 @@ export const db = {
       }
 
       console.log('Successfully created spouse user:', data);
-      return { data, error: null };
+      return { data: userRowToUser(data as UserRow), error: null };
     } catch (error) {
       console.error('Error in createUserForSpouse:', error);
       return { data: null, error };
@@ -125,13 +148,19 @@ export const db = {
   },
 
   updateUser: async (id: string, updates: any) => {
+    const userRow = userToUserRow(updates);
     const { data, error } = await supabase
       .from('users')
-      .update(updates)
+      .update(userRow)
       .eq('id', id)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: userRowToUser(data as UserRow), error: null };
   },
 
   // Accounts
@@ -146,26 +175,43 @@ export const db = {
     }
     
     const { data, error } = await query;
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: data.map(row => accountRowToAccount(row as AccountRow)), error: null };
   },
 
   createAccount: async (account: any) => {
+    const accountRow = accountToAccountRow(account);
     const { data, error } = await supabase
       .from('accounts')
-      .insert(account)
+      .insert(accountRow)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: accountRowToAccount(data as AccountRow), error: null };
   },
 
   updateAccount: async (id: string, updates: any) => {
+    const accountRow = accountToAccountRow(updates);
     const { data, error } = await supabase
       .from('accounts')
-      .update(updates)
+      .update(accountRow)
       .eq('id', id)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: accountRowToAccount(data as AccountRow), error: null };
   },
 
   deleteAccount: async (id: string) => {
@@ -192,26 +238,43 @@ export const db = {
     }
     
     const { data, error } = await query;
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: data.map(row => transactionRowToTransaction(row as TransactionRow)), error: null };
   },
 
   createTransaction: async (transaction: any) => {
+    const transactionRow = transactionToTransactionRow(transaction);
     const { data, error } = await supabase
       .from('transactions')
-      .insert(transaction)
+      .insert(transactionRow)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: transactionRowToTransaction(data as TransactionRow), error: null };
   },
 
   updateTransaction: async (id: string, updates: any) => {
+    const transactionRow = transactionToTransactionRow(updates);
     const { data, error } = await supabase
       .from('transactions')
-      .update(updates)
+      .update(transactionRow)
       .eq('id', id)
       .select()
       .single();
-    return { data, error };
+    
+    if (error || !data) {
+      return { data: null, error };
+    }
+    
+    return { data: transactionRowToTransaction(data as TransactionRow), error: null };
   },
 
   deleteTransaction: async (id: string) => {
